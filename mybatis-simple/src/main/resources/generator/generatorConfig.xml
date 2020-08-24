@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <!-- 加载配置文件 -->
+    <properties resource=""/>
+    <!-- 最常见的用法就是通过location指定驱动程序路径 -->
+    <classPathEntry location=""/>
+    <!--
+    MyBatis3Simple：避免生成与Example相关的代码
+    flat：每个表只生成一个实体类
+    -->
+    <!-- context标签用于指定生成一组对象的环境 -->
+    <!-- defaultModelType：定义MBG如何生成实体类 -->
+    <!-- targetRuntime：指定生成的代码的运行环境，MyBatis默认值；MyBatis3Simple不会生成与Example相关的方法 -->
+    <context id="MySqlContext" targetRuntime="MyBatis3Simple" defaultModelType="flat">
+        <!-- 使用property属性指定分隔符和Java文件编码 -->
+        <!--
+        autoDelimitKeywords：自动给关键字添加分隔符的属性
+        beginningDelimiter：前置分隔符
+        endingDelimiter：后置分隔符
+        javaFileEncoding：指定要使用的Java文件编码
+        -->
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
+
+        <!-- 配置插件 -->
+        <plugin type="org.mybatis.generator.plugins.CachePlugin">
+            <property name="cache_eviction" value="LRU"/>
+            <property name="cache_size" value="1024"/>
+        </plugin>
+
+        <!-- 生成数据库的注释信息，并且禁止在注释中生成日期 -->
+        <!--
+        type：可选属性，指定用户实现类
+        suppressDate：阻止生成的注释包含时间戳
+        suppressAllComments：阻止生成注释
+        addRemarkComments：注释是否添加数据库表的备注信息
+        -->
+        <commentGenerator type="tk.mybatis.generator.MyCommentGenerator">
+            <property name="suppressDate" value="true"/>
+            <property name="addRemarkComments" value="true"/>
+        </commentGenerator>
+
+        <!-- 配置数据源信息 -->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://122.51.48.52:3306/mybatis?useSSL=false"
+                        userId="xianglin"
+                        password="950915">
+        </jdbcConnection>
+
+        <javaTypeResolver>
+            <property name="forceBigDecimal" value="false"/>
+        </javaTypeResolver>
+
+        <!-- 控制生成的实体类 -->
+        <javaModelGenerator targetPackage="test.model" targetProject="src\main\java">
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <sqlMapGenerator targetPackage="test.xml" targetProject="src\main\resources"/>
+
+        <!-- type：ANNOTATEDMAPPER：基于注解的Mapper；XMLMAPPER：基于XML的mapper -->
+        <javaClientGenerator targetPackage="test.dao" targetProject="src\main\java" type="XMLMAPPER"/>
+
+        <table tableName="%">
+            <generatedKey column="id" sqlStatement="MySql"/>
+        </table>
+    </context>
+</generatorConfiguration>

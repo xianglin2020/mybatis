@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http：//mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <!-- 指定使用LOG4J输出日志 -->
+        <setting name="logImpl" value="LOG4J"/>
+        <!-- 将查询列带_的列名转为Java属性常用的UpperCase命令方式 -->
+<!--        <setting name="mapUnderscoreToCamelCase" value="true"/>-->
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <!-- MyBatis二级缓存的全局开关，默认开启 -->
+        <setting name="cacheEnabled" value="true"/>
+    </settings>
+
+    <typeAliases>
+        <package name="tk.mybatis.simple.model"/>
+    </typeAliases>
+
+    <typeHandlers>
+        <!-- 基于枚举索引的TypeHandler -->
+        <!--        <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"-->
+        <!--                     javaType="tk.mybatis.simple.model.Enabled"/>-->
+        <!-- 自定义的枚举类型处理器 -->
+        <typeHandler handler="tk.mybatis.simple.util.EnabledTypeHandler"
+                     javaType="tk.mybatis.simple.model.Enabled"/>
+    </typeHandlers>
+
+    <!--
+    interceptor：拦截器的全限定名
+    如果拦截器有参数，就用<property>标签传入。参数会在拦截器初始化时通过
+    org.apache.ibatis.plugin.Interceptor.setProperties方法传入拦截器。
+    在拦截器中使用Properties获取相应参数值
+     -->
+    <plugins>
+        <plugin interceptor="tk.mybatis.simple.intercept.CameHumpInterceptor">
+            <property name="key" value="value"/>
+        </plugin>
+    </plugins>
+
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC">
+                <property name="" value=""/>
+            </transactionManager>
+            <dataSource type="UNPOOLED">
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://122.51.48.52:3306/mybatis?useSSL=false"/>
+                <property name="username" value="xianglin"/>
+                <property name="password" value="950915"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <databaseIdProvider type="DB_VENDOR">
+        <!-- java.sql.DatabaseMetaData.getDatabaseProductName -->
+        <property name="MySQL" value="mysql"/>
+    </databaseIdProvider>
+
+    <mappers>
+        <mapper resource="tk/mybatis/simple/mapper/CountryMapper.xml"/>
+
+
+        <!--        <mapper resource="tk/mybatis/simple/mapper/RoleMapper.xml"/>-->
+        <!--        <mapper resource="tk/mybatis/simple/mapper/PrivilegeMapper.xml"/>-->
+        <!--        <mapper resource="tk/mybatis/simple/mapper/RolePrivilegeMapper.xml"/>-->
+        <!--        <mapper resource="tk/mybatis/simple/mapper/UserMapper.xml"/>-->
+        <!--        <mapper resource="tk/mybatis/simple/mapper/UserRoleMapper.xml"/>-->
+
+        <!--
+        1. 查找tk.mybatis.simple.mapper包下的所有接口
+        2. 判断接口对应的命名空间是否存在，存在时抛出异常
+        3. 将接口的全限定名转为路径，加载接口对应的XML文件，找到xml后缀的文件就解析文件
+        4. 处理接口中注解的方法
+         -->
+        <package name="tk.mybatis.simple.mapper"/>
+    </mappers>
+</configuration>
