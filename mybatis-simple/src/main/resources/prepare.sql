@@ -3,6 +3,7 @@ CREATE DATABASE mybatis DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 use mybatis;
 
 # 创建测试表
+drop table if exists country;
 CREATE TABLE `country`
 (
     `id`          int          NOT NULL AUTO_INCREMENT,

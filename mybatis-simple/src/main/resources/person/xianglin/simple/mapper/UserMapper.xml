@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http：//mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- 当XML文件和Mapper接口管理的时候，mapper标签的namespace属性需要配置为Mapper接口的全限定名 -->
+<mapper namespace="person.xianglin.simple.mapper.UserMapper">
+    <!-- <cache/> -->
+    <!-- 使用参照缓存解决简单的脏数据 -->
+    <cache-ref namespace="person.xianglin.simple.mapper.RoleMapper"/>
+    <sql id="selectAll">
+        select u.id,
+        u.user_name,
+        u.user_password,
+        u.user_email,
+        u.user_info,
+        u.head_img,
+        u.create_time,
+        r.id "role_id",
+        r.role_name "role_role_name",
+        r.create_by "role_create_by",
+        r.enabled "role_enabled",
+        r.create_time "role_create_time"
+        from sys_user u
+        inner join sys_user_role sur on u.id = sur.user_id
+        inner join sys_role r on sur.role_id = r.id
+    </sql>
+    <!--
+    resultMap用于配置Java对象属性和查询结果列的对应关系，
+    通过property、column属性可以将查询的列映射到type对象的属性上
+    -->
+    <resultMap id="userMap" type="person.xianglin.simple.model.SysUser">
+        <!-- 标记结果作为一个唯一值，有助于提高整体性能 -->
+        <id property="id" column="id"/>
+        <!-- 注入到Java对象属性的普通列 -->
+        <!--
+        column：从数据库查询得到的列名或者列的别名
+        property：映射到列结果的属性
+        javaType：一个Java类型的全限定名
+        jdbcType：列对应的数据库类型
+        typeHandler：使用这个属性覆盖默认的类型处理器
+        -->
+        <result property="userName" column="user_name"/>
+        <result property="userPassword" column="user_password"/>
+        <result property="userEmail" column="user_email"/>
+        <result property="userInfo" column="user_info"/>
+        <result property="headImg" column="head_img"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <!--
+    id：当前命名空间的唯一标识
+    parameterType：传入参数的类型名称，不建议配置，因为MyBatis可以自动推断传入的具体参数
+    flushCache：默认为true，任何时候只要语句被调用，都会清空一级缓存和二级缓存
+    timeout：在抛出异常前，驱动程序等待的秒数
+    -->
+    <!-- 数据库区分date、time、datetime类型，而Java中一般使用java.util.Date类型，
+    需要手动指定日期类型，对应的JDBC类型分别为：DATE、TIME、TIMESTAMP -->
+    <insert id="insert" parameterType="person.xianglin.simple.model.SysUser"
+            flushCache="true" timeout="3" statementType="PREPARED"
+            useGeneratedKeys="false">
+        insert into sys_user(id,user_name,user_password,user_email,user_info,head_img,create_time)
+        values(#{id},#{userName},#{userPassword},#{userEmail},#{userInfo},#{headImg,jdbcType=BLOB},#{createTime,jdbcType=TIMESTAMP})
+    </insert>
+    <!--
+    useGeneratedKeys：设置为true时，MyBatis会使用JBDC的getGeneratedKeys方法取出由数据库内部生成的主键
+    keyProperty：通过getGeneratedKeys获取的主键值要赋值的属性名
+    keyColumn：非必需，主键值要赋值的列名
+    -->
+    <insert id="insert2" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_user(user_name,user_password
+        <if test="userEmail != null and userEmail != ''">
+            ,user_email
+        </if>,user_info,head_img,create_time)
+        values(#{userName},#{userPassword}
+        <if test="userEmail != null and userEmail != ''">
+            ,#{userEmail}
+        </if>
+        ,#{userInfo},#{headImg,jdbcType=BLOB},#{createTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insert3">
+        <!-- order属性的配置和数据库有关：
+        在MySQL中设置为AFTER，因为当前记录的主键值是在insert语句执行成功之后才能获取到
+        在Oracle中设置为BEFORE，因为Oracle需要先从序列中获取值，然后将值作为主键插入表中[SELECT SEQ_ID.nextval from dual]
+         -->
+        <selectKey keyProperty="id" resultType="long" keyColumn="id" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+        insert into sys_user(user_name,user_password,user_email,user_info,head_img,create_time)
+        values(#{userName},#{userPassword},#{userEmail},#{userInfo},#{headImg,jdbcType=BLOB},#{createTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertList" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        insert into sys_user(user_name,user_password,user_email,create_time)
+        values
+        <foreach collection="list" item="user" separator=",">
+            (#{user.userName},#{user.userPassword},#{user.userEmail},#{user.createTime,jdbcType=TIMESTAMP})
+        </foreach>
+    </insert>
+    <update id="updateById">
+        update sys_user
+        set user_name     = #{userName},
+            user_password = #{userPassword},
+            user_email    = #{userEmail},
+            user_info     = #{userInfo},
+            head_img      = #{headImg,jdbcType=BLOB},
+            create_time   = #{createTime,jdbcType=TIMESTAMP}
+        where id = #{id}
+    </update>
+    <!-- 关注更新语句中的逗号，和where前面的 id = #{id} -->
+    <update id="updateByIdSelective">
+        update sys_user
+        <!-- set标签的作用：如果该标签包含的元素有返回值，就插入一个set，如果set后面的字符串是以逗号，结尾的，就将这个逗号删除 -->
+        <!-- set 标签内没有元素时，SQL语句也是错误的，需要添加类似 id = #{id}这样的语句 -->
+        <set>
+            <if test="userName != null and userName != ''">
+                user_name = #{userName},
+            </if>
+            <if test="userPassword != null and userPassword != ''">
+                user_password = #{userPassword},
+            </if>
+            <if test="userEmail != null and userEmail != ''">
+                user_email = #{userEmail},
+            </if>
+            <if test="userInfo != null and userInfo != ''">
+                user_info = #{userInfo},
+            </if>
+            <if test="headImg != null and headImg != ''">
+                head_img = #{headImg},
+            </if>
+            <if test="createTime != null and createTime != ''">
+                create_time = #{createTime,JDBC_TYPE=TIMESTAMP},
+            </if>
+            id = #{id}
+        </set>
+        where id = #{id}
+    </update>
+    <update id="updateByMap">
+        update sys_user
+        <set>
+            <foreach collection="_parameter" separator="," item="value" index="key">
+                ${key} = #{value}
+            </foreach>
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="deleteById">
+        delete from sys_user where id = #{id}
+    </delete>
+
+    <!--
+    select：映射查询语句使用的标签
+    resultMap：用于设置返回值类型和映射的关系
+    id：命名空间内的唯一值标识符，用来代表这条语句
+    #{id}：mybatis中使用预编译参数的一种方式
+     -->
+    <select id="selectById" resultMap="userMap">
+        select *
+        from sys_user
+        where id = #{id}
+    </select>
+    <select id="selectAll" resultType="person.xianglin.simple.model.SysUser">
+        select id,
+               user_name     userName,
+               user_password userPassword,
+               user_email    userEmail,
+               user_info     userInfo,
+               head_img      headImg,
+               create_time   createTime
+        from sys_user
+    </select>
+    <select id="selectRolesByUserId" resultType="SysRole">
+        select role.id,
+               role.role_name   roleName,
+               role.enabled,
+               role.create_by   createBy,
+               role.create_time createTime
+        from sys_role role,
+             sys_user user,
+             sys_user_role
+        where role.id = role_id
+          and user.id = user_id
+          and user.id = #{id}
+    </select>
+    <select id="selectRolesByUserIdAndRoleEnabled" resultType="person.xianglin.simple.model.SysRole">
+        select role.id,
+               role.role_name   roleName,
+               role.enabled,
+               role.create_by   createBy,
+               role.create_time createTime
+        from sys_role role,
+             sys_user user,
+             sys_user_role
+        where role.id = role_id
+          and user.id = user_id
+          and user.id = #{id}
+          and role.enabled = #{enabled}
+    </select>
+    <!--
+    if标签有一个必填属性test，test属性值是一个OGNL表达式，表达式的结果为true或false，
+    除此之位所有的非0 值都为true，只有0为false，
+    多个表达式可以使用and或or进行连接，嵌套的判断可以使用小括号分组
+     -->
+    <select id="selectByUser" resultType="person.xianglin.simple.model.SysUser">
+        select id, user_name userName, user_password userPassword, user_email userEmail, user_info userInfo, head_img
+        headImg, create_time createTime
+        from sys_user
+        <!-- where 标签的作用：如果改标签包含的元素有返回值，就插入一个where，如果where后面的语句是AND或OR开头，就将他们剔除 -->
+        <where>
+            <if test="userName != null and userName != ''">
+                <!-- 使用bind name为绑定到上下文的变量名，value为OGNL表达式 -->
+                <bind name="userNameLike" value="'%' + userName + '%'"/>
+                <!-- and user_name like concat('%',#{userName},'%') -->
+                and user_name like #{userNameLike}
+            </if>
+            <if test="userEmail != null and userEmail != ''">
+                <!-- 使用if标签和上下文中的_databaseId可以实现不同数据库部分语句的切换 -->
+                <if test="_databaseId == 'mysql'">
+                    and user_email = #{userEmail}
+                </if>
+            </if>
+        </where>
+    </select>
+    <select id="selectUserByIdOrUserName" resultMap="userMap">
+        select * from sys_user where 1 =1
+        <choose>
+            <when test="id != null">
+                and id = #{id}
+            </when>
+            <when test="userName != null and userName != ''">
+                and user_name = #{userName}
+            </when>
+            <otherwise>
+                and 1 = 2
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectByUserWithTrim" resultType="person.xianglin.simple.model.SysUser">
+        select id, user_name userName, user_password userPassword, user_email userEmail, user_info userInfo, head_img
+        headImg, create_time createTime
+        from sys_user
+        <!--
+        trim标签有四个属性：均在trim标签内有内容时生效
+        prefix：会给内容增加prefix指定的前缀
+        prefixOverrides：会把内容中匹配的前缀字符串去掉
+        suffix：会给内容增加suffix指定的后缀
+        prefixOverrides：会把内容中匹配的后缀字符串去掉
+        -->
+        <trim prefix="WHERE" prefixOverrides="AND | OR ">
+            <if test="userName != null and userName != ''">
+                and user_name like concat('%',#{userName},'%')
+            </if>
+            <if test="userEmail != null and userEmail != ''">
+                and user_email = #{userEmail}
+            </if>
+        </trim>
+    </select>
+
+    <!--
+    collection：必填，值为要迭代循环的属性名
+    item：变量名，值为从迭代对象取出的每一个值
+    index：索引的属性名：当迭代对象为集合时为索引值，当迭代对象为map类型时，这个值为map的键值(key)
+    open、close：整个循环内容的开头和结尾
+    separator：每次循环的分隔符
+    org.apache.ibatis.session.defaults.DefaultSqlSession.wrapCollection
+    -->
+    <select id="selectByIdList" resultMap="userMap">
+        select * from sys_user where id in
+        <foreach collection="collection" open="(" close=")" separator="," item="id" index="i">
+            #{id}
+        </foreach>
+    </select>
+    <select id="selectByIdArray" resultType="person.xianglin.simple.model.SysUser">
+        select * from sys_user where id in
+        <foreach collection="array" open="(" close=")" separator="," item="id" index="i">
+            #{id}
+        </foreach>
+    </select>
+    <select id="selectByIdMap" resultType="person.xianglin.simple.model.SysUser">
+        select * from sys_user where id in
+        <foreach collection="_parameter" open="(" close=")" separator="," item="it" index="i">
+            #{it}
+        </foreach>
+    </select>
+    <select id="selectUserAndRoleById" resultType="person.xianglin.simple.model.SysUser">
+        select u.id,
+               u.user_name,
+               u.user_password,
+               u.user_email,
+               u.user_info,
+               u.head_img,
+               u.create_time,
+               r.id          "role.id",
+               r.role_name   "role.role_name",
+               r.create_by   "role.create_by",
+               r.enabled     "role.enabled",
+               r.create_time "role.create_time"
+        from sys_user u
+                 inner join sys_user_role sur on u.id = sur.user_id
+                 inner join sys_role r on sur.role_id = r.id
+        where u.id = #{id}
+    </select>
+    <select id="selectUserAndRoleById2" resultMap="userRoleMap">
+        <include refid="selectAll"/>
+        <where>
+            <if test="id != null">
+                u.id = #{id}
+            </if>
+        </where>
+    </select>
+    <select id="selectUserAndRoleByIdSelect" resultMap="userRoleMapSelect">
+        select u.id,
+               u.user_name,
+               u.user_password,
+               u.user_email,
+               u.user_info,
+               u.head_img,
+               u.create_time,
+               sur.role_id
+        from sys_user u
+                 inner join sys_user_role sur on u.id = sur.user_id
+        where u.id = #{id}
+    </select>
+    <select id="selectAllUserAndRoles" resultMap="userRoleListMap">
+        <include refid="selectAll"/>
+    </select>
+    <select id="selectAllUserAndRolesSelect" resultMap="userRoleListMapSelect">
+        select u.id,
+               u.user_name,
+               u.user_password,
+               u.user_email,
+               u.user_info,
+               u.head_img,
+               u.create_time
+        from sys_user u
+        where u.id = #{id}
+    </select>
+    <select id="selectAllUserAndRoleAndPrivileges" resultMap="userRoleListMap">
+        select u.id,
+               u.user_name,
+               u.user_password,
+               u.user_email,
+               u.user_info,
+               u.head_img,
+               u.create_time,
+               r.id             "role_id",
+               r.role_name      "role_role_name",
+               r.create_by      "role_create_by",
+               r.enabled        "role_enabled",
+               r.create_time    "role_create_time",
+               p.id             role_privilege_id,
+               p.privilege_name role_privilege_privilege_name,
+               p.privilege_url  role_privilege_privilege_url
+        from sys_user u
+                 inner join sys_user_role sur on u.id = sur.user_id
+                 inner join sys_role r on sur.role_id = r.id
+                 inner join sys_role_privilege srp on r.id = srp.role_id
+                 inner join sys_privilege p on p.id = srp.privilege_id
+    </select>
+    <resultMap id="userRoleMap" extends="userMap" type="person.xianglin.simple.model.SysUser">
+
+        <!--
+        property：实体对应的属性名
+        javaType：属性对应的Java类型
+        columnPrefix：查询列的前缀，配置后在result的column中可以不写
+        -->
+        <association property="role" columnPrefix="role_" javaType="person.xianglin.simple.model.SysRole"
+                     resultMap="person.xianglin.simple.mapper.RoleMapper.roleMap"/>
+    </resultMap>
+
+    <resultMap id="userRoleMapSelect" type="person.xianglin.simple.model.SysUser" extends="userMap">
+        <association property="role" fetchType="lazy" column="{id=role_id}"
+                     select="person.xianglin.simple.mapper.RoleMapper.selectRoleById"/>
+    </resultMap>
+
+    <resultMap id="userRoleListMap" type="person.xianglin.simple.model.SysUser" extends="userMap">
+        <collection property="roleList" columnPrefix="role_"
+                    resultMap="person.xianglin.simple.mapper.RoleMapper.rolePrivilegeListMap"/>
+    </resultMap>
+    <resultMap id="userRoleListMapSelect" type="person.xianglin.simple.model.SysUser" extends="userMap">
+        <collection property="roleList" select="person.xianglin.simple.mapper.RoleMapper.selectRoleByUserId" column="{id=id}"
+                    fetchType="lazy"/>
+    </resultMap>
+
+    <!-- 存储过程 -->
+    <!--
+    使用存储过程时：需要把statementType设置为CALLABLE
+    存储方式不支持MyBatis的二级缓存，将userCache设置为false
+    OUT模式的参数必需指定jdbcType
+     -->
+    <select id="selectUserById" statementType="CALLABLE" useCache="false">
+        {
+            call select_user_by_id(
+                #{id,mode=IN},
+                #{userName,mode=OUT,jdbcType=VARCHAR},
+                #{userPassword,mode=OUT,jdbcType=VARCHAR},
+                #{userEmail,mode=OUT,jdbcType=VARCHAR},
+                #{userInfo,mode=OUT,jdbcType=VARCHAR},
+                #{headImg,mode=OUT,jdbcType=BLOB,javaType=_byte[]},
+                #{createTime,mode=OUT,jdbcType=TIMESTAMP}
+            )
+            }
+    </select>
+
+</mapper>

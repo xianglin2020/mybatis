@@ -5,14 +5,14 @@
         <!-- 指定使用LOG4J输出日志 -->
         <setting name="logImpl" value="LOG4J"/>
         <!-- 将查询列带_的列名转为Java属性常用的UpperCase命令方式 -->
-<!--        <setting name="mapUnderscoreToCamelCase" value="true"/>-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
         <setting name="aggressiveLazyLoading" value="false"/>
         <!-- MyBatis二级缓存的全局开关，默认开启 -->
         <setting name="cacheEnabled" value="true"/>
     </settings>
 
     <typeAliases>
-        <package name="tk.mybatis.simple.model"/>
+        <package name="person.xianglin.simple.model"/>
     </typeAliases>
 
     <typeHandlers>
@@ -20,8 +20,8 @@
         <!--        <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"-->
         <!--                     javaType="tk.mybatis.simple.model.Enabled"/>-->
         <!-- 自定义的枚举类型处理器 -->
-        <typeHandler handler="tk.mybatis.simple.util.EnabledTypeHandler"
-                     javaType="tk.mybatis.simple.model.Enabled"/>
+        <typeHandler handler="person.xianglin.simple.util.EnabledTypeHandler"
+                     javaType="person.xianglin.simple.model.Enabled"/>
     </typeHandlers>
 
     <!--
@@ -31,7 +31,7 @@
     在拦截器中使用Properties获取相应参数值
      -->
     <plugins>
-        <plugin interceptor="tk.mybatis.simple.intercept.CameHumpInterceptor">
+        <plugin interceptor="person.xianglin.simple.intercept.CameHumpInterceptor">
             <property name="key" value="value"/>
         </plugin>
     </plugins>
@@ -56,7 +56,7 @@
     </databaseIdProvider>
 
     <mappers>
-        <mapper resource="tk/mybatis/simple/mapper/CountryMapper.xml"/>
+        <mapper resource="person/xianglin/simple/mapper/CountryMapper.xml"/>
 
 
         <!--        <mapper resource="tk/mybatis/simple/mapper/RoleMapper.xml"/>-->
@@ -71,6 +71,6 @@
         3. 将接口的全限定名转为路径，加载接口对应的XML文件，找到xml后缀的文件就解析文件
         4. 处理接口中注解的方法
          -->
-        <package name="tk.mybatis.simple.mapper"/>
+        <package name="person.xianglin.simple.mapper"/>
     </mappers>
 </configuration>

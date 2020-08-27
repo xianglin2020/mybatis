@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http：//mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- 当只使用XML而不是用接口时，namespace属性可以为任意不重复的值 -->
+<mapper namespace="person.xianglin.simple.mapper.CountryMapper">
+    <!-- id在任何时候都不能有"."，而且同一个命名空间不能出现重复的ID -->
+    <!-- Dots are not allowed in element names, please remove it from select.All -->
+    <select id="selectAll" resultType="Country">
+        select id, countryname, countrycode
+        from country
+    </select>
+
+    <select id="check" resultType="boolean">
+        select count(1)
+        from country
+        where date > now()
+          and countryname = #{name}
+    </select>
+
+    <insert id="insert">
+        insert into country(countryname,countrycode,date)values(#{name},#{code},date_add(now(),interval 2 year))
+    </insert>
+</mapper>
