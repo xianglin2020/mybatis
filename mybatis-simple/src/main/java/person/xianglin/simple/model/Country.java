@@ -1,8 +1,11 @@
 package person.xianglin.simple.model;
 
+import org.apache.ibatis.type.Alias;
+
 /**
  * @author xianglin
  */
+@Alias("country")
 public class Country {
     private Long id;
     private String countryname;

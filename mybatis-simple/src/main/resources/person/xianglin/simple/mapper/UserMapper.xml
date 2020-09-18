@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http：//mybatis.org/dtd/mybatis-3-mapper.dtd" >
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <!-- 当XML文件和Mapper接口管理的时候，mapper标签的namespace属性需要配置为Mapper接口的全限定名 -->
 <mapper namespace="person.xianglin.simple.mapper.UserMapper">
     <!-- <cache/> -->
@@ -7,26 +7,26 @@
     <cache-ref namespace="person.xianglin.simple.mapper.RoleMapper"/>
     <sql id="selectAll">
         select u.id,
-        u.user_name,
-        u.user_password,
-        u.user_email,
-        u.user_info,
-        u.head_img,
-        u.create_time,
-        r.id "role_id",
-        r.role_name "role_role_name",
-        r.create_by "role_create_by",
-        r.enabled "role_enabled",
-        r.create_time "role_create_time"
+               u.user_name,
+               u.user_password,
+               u.user_email,
+               u.user_info,
+               u.head_img,
+               u.create_time,
+               r.id          "role_id",
+               r.role_name   "role_role_name",
+               r.create_by   "role_create_by",
+               r.enabled     "role_enabled",
+               r.create_time "role_create_time"
         from sys_user u
-        inner join sys_user_role sur on u.id = sur.user_id
-        inner join sys_role r on sur.role_id = r.id
+                 inner join sys_user_role sur on u.id = sur.user_id
+                 inner join sys_role r on sur.role_id = r.id
     </sql>
     <!--
     resultMap用于配置Java对象属性和查询结果列的对应关系，
     通过property、column属性可以将查询的列映射到type对象的属性上
     -->
-    <resultMap id="userMap" type="person.xianglin.simple.model.SysUser">
+    <resultMap id="userMap" type="person.xianglin.simple.model.SysUser" autoMapping="true">
         <!-- 标记结果作为一个唯一值，有助于提高整体性能 -->
         <id property="id" column="id"/>
         <!-- 注入到Java对象属性的普通列 -->
@@ -34,7 +34,7 @@
         column：从数据库查询得到的列名或者列的别名
         property：映射到列结果的属性
         javaType：一个Java类型的全限定名
-        jdbcType：列对应的数据库类型
+        jdbcType：列对应的数据库类型，仅仅需要对插入、更新、删除操作可能为空的列进行处理。
         typeHandler：使用这个属性覆盖默认的类型处理器
         -->
         <result property="userName" column="user_name"/>
@@ -56,8 +56,9 @@
     <insert id="insert" parameterType="person.xianglin.simple.model.SysUser"
             flushCache="true" timeout="3" statementType="PREPARED"
             useGeneratedKeys="false">
-        insert into sys_user(id,user_name,user_password,user_email,user_info,head_img,create_time)
-        values(#{id},#{userName},#{userPassword},#{userEmail},#{userInfo},#{headImg,jdbcType=BLOB},#{createTime,jdbcType=TIMESTAMP})
+        insert into sys_user(id, user_name, user_password, user_email, user_info, head_img, create_time)
+        values (#{id}, #{userName}, #{userPassword}, #{userEmail}, #{userInfo}, #{headImg,jdbcType=BLOB},
+                #{createTime,jdbcType=TIMESTAMP})
     </insert>
     <!--
     useGeneratedKeys：设置为true时，MyBatis会使用JBDC的getGeneratedKeys方法取出由数据库内部生成的主键
@@ -141,7 +142,9 @@
         where id = #{id}
     </update>
     <delete id="deleteById">
-        delete from sys_user where id = #{id}
+        delete
+        from sys_user
+        where id = #{id}
     </delete>
 
     <!--
@@ -149,6 +152,7 @@
     resultMap：用于设置返回值类型和映射的关系
     id：命名空间内的唯一值标识符，用来代表这条语句
     #{id}：mybatis中使用预编译参数的一种方式
+    resultType：字段和属性自动映射的时候，MyBatis会使用两者的大写形式进行比较
      -->
     <select id="selectById" resultMap="userMap">
         select *
@@ -375,7 +379,8 @@
                     resultMap="person.xianglin.simple.mapper.RoleMapper.rolePrivilegeListMap"/>
     </resultMap>
     <resultMap id="userRoleListMapSelect" type="person.xianglin.simple.model.SysUser" extends="userMap">
-        <collection property="roleList" select="person.xianglin.simple.mapper.RoleMapper.selectRoleByUserId" column="{id=id}"
+        <collection property="roleList" select="person.xianglin.simple.mapper.RoleMapper.selectRoleByUserId"
+                    column="{id=id}"
                     fetchType="lazy"/>
     </resultMap>
 

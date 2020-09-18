@@ -87,7 +87,13 @@ public interface UserMapper {
      * 根据用户ID和角色状态查询角色信息
      * 未使用@Param注解指定参数时抛出异常
      * Parameter 'id' not found. Available parameters are [arg1, arg0, param1, param2]
-     * 使用@Param注解后param1, param2仍可正常使用
+     * 使用@Param注解后MyBatis会自动将参数封装为Map类型，参数值会作为Map的Key
+     * param1, param2仍可正常使用
+     * <p>
+     * 如果使用Java8的带参数编译选项，即可正常使用
+     * <compilerArgs>
+     * <arg>-parameters</arg>
+     * </compilerArgs>
      *
      * @param id      用户ID
      * @param enabled 角色状态

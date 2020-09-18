@@ -1,17 +1,36 @@
-<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
-        "http：//mybatis.org/dtd/mybatis-3-config.dtd">
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
     <settings>
-        <!-- 指定使用LOG4J输出日志 -->
+        <!-- 指定使用LOG4J输出日志 org.apache.ibatis.logging -->
         <setting name="logImpl" value="LOG4J"/>
         <!-- 将查询列带_的列名转为Java属性常用的UpperCase命令方式 -->
         <setting name="mapUnderscoreToCamelCase" value="true"/>
         <setting name="aggressiveLazyLoading" value="false"/>
         <!-- MyBatis二级缓存的全局开关，默认开启 -->
         <setting name="cacheEnabled" value="true"/>
+        <!--
+        callSettersOnNulls	指定当结果集中值为 null 的时候是否调用映射对象的 setter（map 对象时为 put）方法，这在依赖于 Map.keySet()
+         或 null 值进行初始化时比较有用。注意基本类型（int、boolean 等）是不能设置成 null 的。
+        returnInstanceForEmptyRow	当返回行的所有列都是空时，MyBatis默认返回 null。 当开启这个设置时，MyBatis会返回一个空实例。
+        请注意，它也适用于嵌套的结果集（如集合或关联）。（新增于 3.4.2）
+         -->
+        <setting name="callSettersOnNulls" value="false"/>
+        <setting name="returnInstanceForEmptyRow" value="false"/>
+        <!-- 允许使用方法签名中的名称作为语句参数名称。 为了使用该特性，你的项目必须采用 Java 8 编译，并且加上 -parameters 选项。 -->
+        <setting name="useActualParamName" value="true"/>
     </settings>
 
     <typeAliases>
+        <!-- org.apache.ibatis.type.TypeAliasRegistry.registerAliases(java.lang.String) -->
+        <!--
+            Alias aliasAnnotation = type.getAnnotation(Alias.class);
+            if (aliasAnnotation != null) {
+                alias = aliasAnnotation.value();
+            }
+         -->
         <package name="person.xianglin.simple.model"/>
     </typeAliases>
 
