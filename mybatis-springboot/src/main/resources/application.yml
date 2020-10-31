@@ -1,0 +1,13 @@
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath:mapper/*.xml,classpath:person/xianglin/simple/mapper/*.xml
+  type-aliases-package: person.xianglin.simple.model
+pagehelper:
+  reasonable: true
+  supportMethodsArguments: true
+spring:
+  datasource:
+    password: mysql-share
+    url: jdbc:mysql://8.129.38.39:3306/mysql_bzbh?useSSL=false
+    username: mysql-share

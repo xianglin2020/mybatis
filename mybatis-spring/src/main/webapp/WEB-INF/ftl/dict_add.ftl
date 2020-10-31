@@ -1,26 +1,17 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%--
-  Created by IntelliJ IDEA.
-  User: xianglin
-  Date: 2020/8/13
-  Time: 9:55
-  To change this template use File | Settings | File Templates.
---%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
 <html>
 <head>
-    <c:set var="path" value="${pageContext.request.contextPath}"/>
     <title>字典维护</title>
 </head>
 <body>
-<form action="${path}/dicts/add" method="post">
+<form action="/dicts/add" method="post">
     <input type="hidden" id="id" value="${model.id}">
     <table>
-        <c:if test="${msg != null}">
+        <#if msg != null>
             <tr>
                 <th colspan="2" style="color: red;max-width: 400px;">${msg}</th>
             </tr>
-        </c:if>
+        </#if>
         <caption>字典维护</caption>
         <tr>
             <th>类别名</th>
@@ -57,7 +48,7 @@
 
 <script>
     function backToList() {
-        location.href = '${path}/dicts';
+        location.href = '/dicts';
     }
 </script>
 </body>

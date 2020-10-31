@@ -1,8 +1,6 @@
 package person.xianglin.service.impl;
 
-import com.sun.istack.internal.NotNull;
 import org.apache.ibatis.session.RowBounds;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import person.xianglin.mapper.DictMapper;
 import person.xianglin.model.SysDict;
@@ -20,7 +18,7 @@ public class DictServiceImpl implements DictService {
     }
 
     @Override
-    public SysDict findById(@NotNull Long id) {
+    public SysDict findById(Long id) {
         return dictMapper.selectByPrimaryKey(id);
     }
 
@@ -39,7 +37,7 @@ public class DictServiceImpl implements DictService {
     }
 
     @Override
-    public boolean deleteById(@NotNull Long id) {
+    public boolean deleteById(Long id) {
         return dictMapper.deleteById(id) == 1;
     }
 }

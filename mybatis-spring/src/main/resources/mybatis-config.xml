@@ -9,4 +9,11 @@
         <setting name="mapUnderscoreToCamelCase" value="true"/>
         <setting name="aggressiveLazyLoading" value="false"/>
     </settings>
+
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <property name="supportMethodsArguments" value="true"/>
+            <property name="reasonable" value="true"/>
+        </plugin>
+    </plugins>
 </configuration>
